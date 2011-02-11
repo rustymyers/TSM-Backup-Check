@@ -27,6 +27,7 @@ if [[ ! -e $tsmchkPlist ]]; then
 		<string>edu.psu.educ.tsmchk</string>
 		<key>ProgramArguments</key>
 		<array>
+			<string>open</string>
 			<string>/Applications/TSM\ Backup\ Check/TSM\ Backup\ Check.app</string>
 		</array>
 		<key>StartCalendarInterval</key>

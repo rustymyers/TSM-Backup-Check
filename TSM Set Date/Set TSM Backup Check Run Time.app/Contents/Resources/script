@@ -27,6 +27,7 @@ if [[ ! -e $tsmchkPlist ]]; then
 		<string>edu.psu.educ.tsmchk</string>
 		<key>ProgramArguments</key>
 		<array>
+			<string>open</string>
 			<string>/Applications/TSM\ Backup\ Check/TSM\ Backup\ Check.app</string>
 		</array>
 		<key>StartCalendarInterval</key>
@@ -89,7 +90,6 @@ elif [[ $HourTime -gt "24" ]]; then
 	notifyAS
 	exit 0
 fi
-
 
 if [[ $MinTime = "0" ]]; then
 	MinTime=00	
