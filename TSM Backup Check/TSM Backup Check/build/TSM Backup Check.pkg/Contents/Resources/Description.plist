@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IFPkgDescriptionDeleteWarning</key>
+	<string></string>
+	<key>IFPkgDescriptionDescription</key>
+	<string>New Icon for Set TSM Backup Check Run Time.app!
+More Error checking in 
+Bug Fix:
+Would produce error when trying to set the time because the ~/Library/LaunchAgents/ folder wouldn't be there.</string>
+	<key>IFPkgDescriptionTitle</key>
+	<string>TSM Backup Check</string>
+	<key>IFPkgDescriptionVersion</key>
+	<string>1.1</string>
+</dict>
+</plist>

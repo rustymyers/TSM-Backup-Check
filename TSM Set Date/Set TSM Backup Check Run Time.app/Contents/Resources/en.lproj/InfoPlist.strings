@@ -1,0 +1,4 @@
+CFBundleName = "Set TSM Backup Check Run Time";
+CFBundleShortVersionString = "1.1";
+CFBundleGetInfoString = "Set TSM Backup Check Run Time version 1.0 Copyright Pennslyvania State University 2010 Contact: rzm102@psu.edu";
+NSHumanReadableCopyright = "Pennslyvania State University 2010 - Contact: rzm102@psu.edu.";

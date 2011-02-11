@@ -1,0 +1,4 @@
+CFBundleName = "TSM Backup Check";
+CFBundleShortVersionString = "1.1";
+CFBundleGetInfoString = "TSM Backup Check version 1.1 Copyright Pennslyvania State University 2010 Contact: rzm102@psu.edu";
+NSHumanReadableCopyright = "Pennslyvania State University 2010 - Contact: rzm102@psu.edu.";

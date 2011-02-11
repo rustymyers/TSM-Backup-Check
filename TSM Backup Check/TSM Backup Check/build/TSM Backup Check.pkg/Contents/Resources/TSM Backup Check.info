@@ -1,0 +1,20 @@
+Title TSM Backup Check
+Version 1.1
+Description New Icon for Set TSM Backup Check Run Time.app!
+More Error checking in 
+Bug Fix:
+Would produce error when trying to set the time because the ~/Library/LaunchAgents/ folder wouldn't be there.
+DefaultLocation /
+DeleteWarning 
+
+### Package Flags
+
+NeedsAuthorization YES
+Required NO
+Relocatable NO
+RequiresReboot NO
+UseUserMask NO
+OverwritePermissions NO
+AllowBackRev NO
+RootVolumeOnly NO
+OnlyUpdateInstalledLanguages NO

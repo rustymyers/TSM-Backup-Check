@@ -1,0 +1,48 @@
+12/03/2010 10:24:52 (dsmagent) IBM Tivoli Storage Manager 
+12/03/2010 10:24:52 (dsmagent) Remote Client Agent - Built Nov 23 2009 12:28:39 
+12/03/2010 10:24:52 (dsmagent) Version 6, Release 1, Level 3.0   
+12/03/2010 10:25:02 (dsmagent) ANS3002I Session started for user CHM130.EDUC.PSU.EDU (TCP/IP 10.0.10.63).
+12/03/2010 10:25:14 (dsmagent) ANS3003I Session ended for user CHM130.EDUC.PSU.EDU.
+12/03/2010 10:25:14 (dsmagent) ANS3002I Session started for user CHM130.EDUC.PSU.EDU (TCP/IP 10.0.10.63).
+12/03/2010 10:25:14 (dsmagent) ANS3003I Session ended for user CHM130.EDUC.PSU.EDU.
+12/03/2010 10:25:35 (dsmagent) IBM Tivoli Storage Manager 
+12/03/2010 10:25:35 (dsmagent) Remote Client Agent - Built Nov 23 2009 12:28:39 
+12/03/2010 10:25:35 (dsmagent) Version 6, Release 1, Level 3.0   
+12/03/2010 10:25:48 (dsmagent) IBM Tivoli Storage Manager 
+12/03/2010 10:25:48 (dsmagent) Remote Client Agent - Built Nov 23 2009 12:28:39 
+12/03/2010 10:25:48 (dsmagent) Version 6, Release 1, Level 3.0   
+12/03/2010 10:32:42 (dsmcad) IBM Tivoli Storage Manager 
+12/03/2010 10:32:42 (dsmcad) Client Acceptor - Built Nov 23 2009 12:29:29 
+12/03/2010 10:32:42 (dsmcad) Version 6, Release 1, Level 3.0   
+12/03/2010 10:32:42 (dsmcad) IBM Tivoli Storage Manager 
+12/03/2010 10:32:42 (dsmcad) Client Acceptor - Built Nov 23 2009 12:29:29 
+12/03/2010 10:32:42 (dsmcad) Version 6, Release 1, Level 3.0   
+12/03/2010 10:32:42 (dsmcad) ANS3000I TCP/IP communications available on port 51479.
+12/03/2010 10:32:42 (dsmcad) Dsmcad is working in   Webclient   Schedule   mode.
+12/03/2010 10:32:42 (dsmcad) ANS3000I HTTP communications available on port 1581.
+12/03/2010 10:32:42 (dsmcad) Command will be executed 
+in 1 minute.
+12/03/2010 10:32:42 (dsmcad) Time remaining until execution: 
+12/03/2010 10:32:42 (dsmcad) ANS1835E PASSWORDACCESS is GENERATE, but password needed for server 'DATAKEEP.CAC.PSU.EDU'.
+12/03/2010 10:32:42 (dsmcad) Either the password is not stored locally, or it was changed at the server.
+12/03/2010 10:32:42 (dsmcad) ANS1835E PASSWORDACCESS is GENERATE, but password needed for server 'DATAKEEP.CAC.PSU.EDU'.
+12/03/2010 10:32:42 (dsmcad) Either the password is not stored locally, or it was changed at the server.
+12/03/2010 10:32:42 (dsmcad) ANS1025E Session rejected: Authentication failure
+12/03/2010 10:32:42 (dsmcad) ANS1570E Registering this instance of the Cad with the server failed. Cad process continues.
+12/03/2010 10:33:42 (dsmcad) Executing scheduled command now.
+12/03/2010 10:33:52 (dsmcad) ANS1977E Dsmcad schedule invocation was unsuccessful. This command will be tried again in 10 minutes.
+in 10 minutes.
+12/03/2010 10:33:52 (dsmcad) Time remaining until execution: 
+Executing scheduled command now.
+12/03/2010 10:44:02 (dsmcad) ANS1977E Dsmcad schedule invocation was unsuccessful. This command will be tried again in 10 minutes.
+in 10 minutes.
+12/03/2010 10:44:02 (dsmcad) Time remaining until execution: 
+Executing scheduled command now.
+12/03/2010 10:54:12 (dsmcad) ANS1977E Dsmcad schedule invocation was unsuccessful. This command will be tried again in 10 minutes.
+in 10 minutes.
+12/03/2010 10:54:12 (dsmcad) Time remaining until execution: 
+Executing scheduled command now.
+12/03/2010 11:04:22 (dsmcad) ANS1977E Dsmcad schedule invocation was unsuccessful. This command will be tried again in 10 minutes.
+in 10 minutes.
+12/03/2010 11:04:22 (dsmcad) Time remaining until execution: 
+Executing scheduled command now.

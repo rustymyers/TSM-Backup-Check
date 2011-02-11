@@ -1,0 +1,335 @@
+#!/bin/bash
+
+# Last Updated: 20101012
+
+#Uncomment to run in Platypus 3.4 - Platypus tools are inside the .app/Contents/Resources directory. We move there to use them.
+cd "$1"/Contents/Resources/
+
+# Check tsm to see if it has backed up.
+# Steps:
+# Is TSM running now?
+# IF Yes, quit
+# 	IF No,
+# 		Is there a dsmsched log?
+# 		IF Yes, continue
+# 			IF no, Is there a dsmwebcl.log file?
+# 				If yes, is there a schedule?
+# 				If yes or no, notify & quit
+# 		Did the last backup complete?
+# 		IF Yes, notify & quit
+# 			IF No,
+# 				Is TSM Installed?
+# 				Is TSMCAD running?
+# 				Does the password need reset?
+# 				Was there ever a successful backup?
+# Notify Users with explanations and codes
+
+# Error Codes
+# TSM Not Installed = 10
+# TSM is presently running a backup = 20
+# TSM CAD not running = 40
+# Password needs reset = 50
+# No TSM Logs found = 60
+# User does not have permissions to access logs = 61
+# No dsmcsched.log = 64
+# No dsmwebcl.log = 65
+# No Schedule in dsmwebcl.log, has checked in with server = 66
+# No Schedule in dsmwebcl.log, has NOT checked in with server = 69
+# Backup has been scheduled but not started = 67
+# No Backup has been scheduled = 68
+# Last Backup had errors = 70
+# Last backup completed, this one didn't = 75
+# No backup completed = 80
+# I have no clue whats wrong = 100
+
+##########################
+#         To Do          #
+##########################
+
+# Write when next backup is
+# Ask user if they want silence on success
+
+###########################
+#        Variables        #
+###########################
+
+# Set the location for the log.
+loglocation="/Users/$USER/Library/Logs/TSMChk.log"
+
+# Set the location for the mylogger.sh script
+logscript="./mylogger.sh"
+
+# Set SilentOnSuccess to "y" to only show errors. Setting it to "y" will not display a success message.
+SilentOnSuccess="n"
+
+# Set the variable $mylog to point to the log script and provide the first variable, the log location.
+mylog="$logscript $loglocation"
+
+# Set the message displayed when a sucessful backup was finished.
+successmessage="Congratulations! TSM is currently running a backup. Post it to Facebook so everyone knows your safe from hard drive failure!"
+
+# Set how to notify users. 
+# Settings:
+# Notify Using Growl:
+# "tsmnotifyGrowl"	
+# Notify Using AppleScript:
+# "tsmnotifyAS"
+notifystyle="tsmnotifyGrowl"
+
+# Contact information
+details="Please write down all error codes for the following TSM system checks and contact ETC at 865-0626 or http://helpdesk.educ.psu.edu/ for assistance"
+
+###########################
+#        Functions        #
+###########################
+
+# Write start line, for each run, to the log file.
+echo "
+Start TSM Backup Check Log `date`
+" >> $loglocation
+
+todaysdate=`date "+%m/%d/%Y"`
+	
+function tsmnotify {
+	$notifystyle
+}
+
+function tsmnotifyGrowl {
+	# Use Growl to show messages
+	./growl.sh "$errorcode"
+	}
+
+function tsmnotifyAS {
+	dialogdays=`/usr/bin/osascript << EOT
+		tell application "System Events"
+			display dialog "$errorcode" buttons ["OK"] default button "OK"
+		end tell
+		EOT`
+		echo $dialogdays
+}
+
+function tsmerrorcheck {
+	
+	# Write down error codes and contact ETC
+	errorcode="$details"
+	tsmnotify
+
+	noschedulefromserver=`cat /Library/Logs/tivoli/tsm/dsmsched.log  | grep "No schedule returned from server" | awk '{print $3, $4, $5, $6, $7}'`
+	if [[ $noschedulefromserver == "No schedule returned from server." ]]; then
+		errorcode="TSM is installed, but there is no schedule for backup on the TSM Server. Error Code 68"
+		$mylog "$errorcode"
+		tsmnotify
+		exit 68
+	else
+		dsmwebcl="/Library/Logs/tivoli/tsm/dsmwebcl.log"
+		nextbackupscheduleddate=`tail -10 "$dsmwebcl" | grep $todaysdate | grep "Server Window Start:"|awk '{print $7, $9}'`
+		nextbackupscheduleddatehour=`tail -10 "$dsmwebcl" | grep $todaysdate | grep "Server Window Start:"|awk '{print $7}'`
+		errorcode="TSM has a schedule for backup. The next backup is $nextbackupscheduleddate"
+		$mylog "$errorcode"
+		tsmnotify
+	fi
+
+	# Is TSM Installed?
+	dsmcTool=`which dsmc`
+	if [ -a $dsmcTool ]; then
+		errorcode="TSM is installed in the correct location"
+		$mylog "$errorcode"
+		tsmnotify
+	else	
+		errorcode="TSM is not installed or can't be found. Error Code 10"
+		$mylog "$errorcode"
+		tsmnotify
+		exit 10
+	fi
+
+	# Is the TSM CAD Started
+	tsmcadrun=`/bin/ps -ax | /usr/bin/grep -i dsmcad | /usr/bin/grep -v grep`
+	if [ "$tsmcadrun" = "" ]; then
+		errorcode="TSM CAD is not running. Error Code 40"
+		$mylog "$errorcode"
+		tsmnotify
+		exit 40
+	else
+		errorcode="TSM CAD is running"
+		$mylog "$errorcode"
+		tsmnotify
+	fi	
+
+	# Does the password need reset
+	tsmpassword=`/usr/bin/grep ANS2050E $dsmschedlog | tail -1`
+	if [ "$tsmpassword" = "" ]; then
+		errorcode="TSM does not have a password error"
+		$mylog "$errorcode"
+		tsmnotify
+	else
+		tsmpasswordfail=`/usr/bin/grep ANS2050E $dsmschedlog|tail -1`
+		tsmpasswordfaildate=`/usr/bin/grep ANS2050E $dsmschedlog|tail -1|awk '{print $1}'`
+		schedcompletesucess=`/bin/cat $dsmschedlog | /usr/bin/grep "Scheduled event" | /usr/bin/awk '{print $1,$3,$4,$5,$6,$7}' | /usr/bin/grep successfully|tail -1`
+		schedcompletesucess=`/bin/cat $dsmschedlog | /usr/bin/grep "Scheduled event"| /usr/bin/grep successfully | /usr/bin/awk '{print $1}'|tail -1`
+		if [ "$schedcompletesucess" = "" ]; then
+			errorcode="TSM has a password error. There has never been a backup. Error Code 80"
+			$mylog "$errorcode"
+			tsmnotify
+			exit 80
+		else
+			errorcode="TSM had a password error $tsmpasswordfaildate. The last successful backup was $schedcompletesucess. Error Code 70"
+			$mylog "$errorcode"
+			tsmnotify
+		fi
+	fi
+
+	# Did TSM ever backup? If it did, then let them know.
+	if [ "$Anyschedcompleteeventsucess" = "" ]; then
+		errorcode="TSM shows no successfully completed backups EVER!"
+		$mylog "$errorcode"
+		tsmnotify
+	else
+		errorcode="TSM has completed successfully in the past, but the latest backup did not. Last backup completed on "$Lastschedcompletedate". The next backup will be $nextbackupscheduleddate. Error Code 75. If your machine is likely to be offline daily at $nextbackupscheduleddatehour, consider changing the backup time."
+		$mylog "$errorcode"
+		tsmnotify
+		exit 75
+	fi
+	
+	errorcode="TSM has an unknown error. Error Code 100."
+	$mylog "$errorcode"
+	tsmnotify
+	exit 100
+}
+
+
+
+# Variable Log Location
+# Is the schedule log gone
+if [[ ! -x /Library/Logs/tivoli ]]; then
+	# Write down error codes and contact ETC
+	errorcode="$details"
+	tsmnotify
+	errorcode="You do not have privilege to read the tivoli logs! Error Code 61"
+	$mylog "$errorcode"
+	tsmnotify
+	exit 61
+elif [[ -e /Library/Logs/tivoli/tsm/dsmsched.log ]]; then
+	dsmschedlog=/Library/Logs/tivoli/tsm/dsmsched.log
+	$mylog "$dsmschedlog Exists."
+elif [[ -e ~/Library/Logs/tivoli/tsm/dsmsched.log ]]; then
+	dsmschedlog=~/Library/Logs/tivoli/tsm/dsmsched.log
+	$mylog "$dsmschedlog Exists."
+elif [[ -e /Library/Logs/tivoli/tsm/dsmwebcl.log ]]; then
+	dsmwebcl="/Library/Logs/tivoli/tsm/dsmwebcl.log"
+	$mylog "dsmsched.log is not there, but dsmwebcl.log Exists."
+	# Is there a shcedule and when will it run? 
+	nextbackupscheduleddate=`tail -10 "$dsmwebcl" | grep $todaysdate | grep "Server Window Start:"|awk '{print $7, $9}'`
+	if [[ $nextbackupscheduleddate = "00:00:00 00/00/0000" ]]; then
+		errorcode="TSM is installed and working, but does not have a schedule to backup this computer. Error Code 66"
+		$mylog "$errorcode"
+		tsmnotify
+		exit 66
+	elif [[ $nextbackupscheduleddate = "" ]]; then
+		# Is the TSM CAD Started
+		tsmcadrun=`/bin/ps -ax | /usr/bin/grep -i dsmcad | /usr/bin/grep -v grep`
+		if [ "$tsmcadrun" = "" ]; then
+			errorcode="TSM CAD is not running. Error Code 40"
+			$mylog "$errorcode"
+			tsmnotify
+			exit 40
+		fi
+		errorcode="TSM is installed and working, but has no schedule to backup. Please wait 15 minutes, then check again. Error Code 69"
+		$mylog "$errorcode"
+		tsmnotify
+		exit 
+	else
+		errorcode="TSM is installed and working, but has not started backing up. The next scheduled backup is $nextbackupscheduleddate. Please wait until then before checking again. Error Code 67"
+		$mylog "$errorcode"
+		tsmnotify
+		exit 67
+	fi	
+else
+	errorcode="Could not find any TSM log. TSM has not been started or the logs have been deleted. Error Code 60"
+	$mylog "$errorcode"
+	tsmnotify
+	exit 60
+fi
+
+# Is TSM Running now
+# tsmRunning=`/bin/ps -ax | /usr/bin/grep -i dsmc$ | /usr/bin/grep -v grep`
+# Find any process that has dsmc as a start. For example: "dsmc" or "dsmc incremental"
+tsmRunning=`/bin/ps -ax | /usr/bin/grep -i "dsmc\([[:space:]]\|$\)" | /usr/bin/grep -v grep`
+if [ "$tsmRunning" = "" ]; then
+	$mylog "TSM is not currently running a backup. Continue Checks."
+else
+	errorcode=$successmessage
+	$mylog "$errorcode"
+	tsmnotify
+	exit 20
+fi
+
+# If TSM is not running, gather some information from the log files to determine whats up.
+schedcomplete=`cat "$dsmschedlog" | grep "Scheduled event" |tail -1`
+schedcompletedate=`cat "$dsmschedlog" | grep "Scheduled event" | awk '{print $1}' |tail -1` 
+schedcompletetime=`cat "$dsmschedlog" | grep "Scheduled event" | awk '{print $2}' |tail -1` 
+schedcompleteevent=`cat "$dsmschedlog" | grep "Scheduled event" | awk '{print $3,$4,$5,$6,$7}' |tail -1` 	
+schedcompleteeventsucess=`cat "$dsmschedlog" | grep "Scheduled event" | awk '{print $3,$4,$5,$6,$7}' |tail -1|grep successfully`
+Anyschedcompleteeventsucess=`cat "$dsmschedlog" | grep "Scheduled event" | awk '{print $3,$4,$5,$6,$7}'|grep successfully`
+Lastschedcompletedate=`cat "$dsmschedlog" | grep "Scheduled event" | grep "successfully" | awk '{print $1}' |tail -1`
+schedcompleteeventfail=`cat "$dsmschedlog" | grep "Scheduled event" | awk '{print $3,$4,$5,$6,$7}' |tail -1 | grep failed` 
+schedcompleteruntime=`cat "$dsmschedlog" | grep "Data transfer time" | awk '{print $6,$7}' |tail -1`
+schedcompletefailed=`cat "$dsmschedlog" | grep "failed" | awk '{print $8}' |tail -1`
+schedtransgb=`cat "$dsmschedlog" | grep "transferred" | awk '{print $8,$9}' |tail -1`
+
+
+# Check that the last backup was sucessful
+
+if [[ "$Anyschedcompleteeventsucess" = "" ]]; then
+	#No successful backups ever
+	errorcode="There have been no successful backups. Running Error Checks..."
+	$mylog "$errorcode"
+	tsmnotify
+	tsmerrorcheck
+	exit 80
+fi
+
+# Check last backup date and notify if after 10 days
+# First convert dates to easier format
+
+lastcomplete=$schedcompletedate
+# Check the days between backups
+daysbetweenbackup=`./chkdate.sh $lastcomplete $todaysdate`
+lastbackupdaybetween=`echo "Your last backup was "$daysbetweenbackup" days's ago"`
+
+# Print out last backup info
+$mylog "#########################################################################################################################################"
+$mylog "Last Backup: $schedcompletedate"
+$mylog "   Date    |   Time   |            Scheduled Event Name                |  Transferred  | Transfer Time |  Failed | Days Since Last Backup"
+$mylog "_________________________________________________________________________________________________________________________________________"
+$mylog "$schedcompletedate | $schedcompletetime | $schedcompleteevent |   $schedtransgb    |  $schedcompleteruntime   |  $schedcompletefailed    | $daysbetweenbackup"
+$mylog "#########################################################################################################################################"
+
+if [[ "$daysbetweenbackup" -gt "10" ]]; then
+	# Uh-Oh it's been more than ten days since you backed up! What's the deal?
+	errorcode="Backup has not completed in $daysbetweenbackup days. Running error checking."
+	$mylog "##WARNING##WARNING##WARNING##WARNING##WARNING##"
+	$mylog "$errorcode"
+	$mylog "##WARNING##WARNING##WARNING##WARNING##WARNING##"
+	tsmnotify
+	tsmerrorcheck
+else
+	errorcode="Much Success! Last backup was on $schedcompletedate."
+	$mylog "$errorcode"
+	# If SilentOnSuccess is set to no, display message
+	if [[ $SilentOnSuccess = "n" ]]; then
+		tsmnotify
+	fi 
+	exit 0
+fi
+
+
+
+# Credits
+# mail command: http://theos.in/shell-scripting/send-mail-bash-script/
+# mylogger.sh http://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/assortedtips.html
+# Penn State MacAdmins Perl Script to check TSM backups 
+# Growl http://growl.info/
+# Growl Shell Script by BobHarris http://www.macosxhints.com/article.php?story=20070602201030683
+# Advanced Bash Scripting Guide http://tldp.org/LDP/abs/html/
+# Platypus http://www.sveinbjorn.org/platypus
+exit 0
