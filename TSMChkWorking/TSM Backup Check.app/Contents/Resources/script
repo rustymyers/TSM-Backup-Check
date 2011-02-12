@@ -122,8 +122,13 @@ function tsmerrorcheck {
 		exit 68
 	else
 		dsmwebcl="/Library/Logs/tivoli/tsm/dsmwebcl.log"
-		nextbackupscheduleddate=`tail -10 "$dsmwebcl" | grep $todaysdate | grep "Server Window Start:"|awk '{print $7, $9}'`
+		
+		if [[ $nextbackupscheduleddate == "" ]]; then
+			nextbackupscheduleddate="Unknown"
+		fi
+			
 		nextbackupscheduleddatehour=`tail -10 "$dsmwebcl" | grep $todaysdate | grep "Server Window Start:"|awk '{print $7}'`
+
 		errorcode="TSM has a schedule for backup. The next backup is $nextbackupscheduleddate"
 		$mylog "$errorcode"
 		tsmnotify
