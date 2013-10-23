@@ -1,2 +1,28 @@
-TSM Backup Check Scripts. Used for checking status of backups. Script lives inside TSM Backup Check.app/Contents/Resources/script
-More information can be found on my blog: http://rustyisageek.blogspot.com/2010/04/tsm-backup-check.html
+TSM Backup Check is a script that is used by client computers to check the status of their Tivoli backups. The script is usually run with an app built by Platypus. You can also call it with other tools, Automator, cron, launchd, Terminal, Apple Remote Desktop, whatever you want. Feel free to change any part to the script, expand, subtract, whatever. Please contribute changes back on this page as attachments or in a "branch" section. Thanks.
+
+The script requires access to the tsm log files. If you want to run the script as a non-admin, you may need to change the permissions or location of the log files. Default location for log files are /Library/Logs/tivoli/tsm/
+
+The script expects the chkdate.sh, growl.sh, and mylogger.sh to be in the same folder as itself. Keep them all in the same folder, or edit the script for the new locations. The default setting for the script also requires Growl to be installed and running for notifications. It can also use AppleScript instead of Growl.
+
+Dependencies:
+
+Growl 1 installed and running
+chkdate.sh script, included below
+growl.sh script, included below
+mylogger.sh script, included below
+Download a zip of the scripts here
+For ease of use I created a app of the script. Included is the script that is run using Platypus 2. Platypus creates a .app that I can double click to run the script.
+
+
+Resources:
+
+Growl - http://growl.info/
+Platypus - http://www.sveinbjorn.org/platypus
+
+Credits:
+
+mail command: http://theos.in/shell-scripting/send-mail-bash-script/
+mylogger.sh http://www.linuxtopia.org/online_books/advanced_bash_scripting_guide/assortedtips.html
+CLM TSM Monitoring Script https://wikispaces.psu.edu/display/PSUMacAdmins/CLC+TSM+Monitoring
+Growl Shell Script by BobHarris http://www.macosxhints.com/article.php?story=20070602201030683
+Advanced Bash Scripting Guide http://tldp.org/LDP/abs/html/
